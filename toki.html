@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>BURUK TOKİ MASTER</title>
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1e293b">
+    
+    <link rel="icon" type="image/png" sizes="192x192" href="https://via.placeholder.com/192x192.png?text=B">
+    <link rel="apple-touch-icon" href="https://via.placeholder.com/192x192.png?text=B">
+
+    <style>
+        :root { 
+            --ana: #1e293b; --arka: #f8fafc; --yazi: #334155; --mavi: #3b82f6; 
+            --kirmizi: #ef4444; --yesil: #22c55e; --kart-bg: #ffffff;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; background: var(--arka); 
+            color: var(--yazi); overflow: hidden; padding-top: env(safe-area-inset-top); 
+        }
+
+        /* Menü */
+        .tabs { display: flex; background: var(--ana); height: 65px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .tab { flex: 1; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; color: #94a3b8; text-transform: uppercase; border-bottom: 3px solid transparent; }
+        .tab.active { color: white; border-bottom-color: var(--mavi); background: rgba(255,255,255,0.05); }
+
+        .page { padding: 15px; height: calc(100vh - 65px); overflow-y: auto; display: none; }
+        .page.active { display: block; }
+
+        /* Kartlar */
+        .card { background: var(--kart-bg); padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+        h3 { margin: 0 0 10px 0; font-size: 13px; color: var(--ana); text-transform: uppercase; border-bottom: 2px solid #f1f5f9; padding-bottom: 5px; }
+        
+        textarea, input, select { 
+            width: 100%; padding: 14px; margin: 5px 0; border-radius: 8px; border: 1px solid #cbd5e1; 
+            background: white; color: var(--yazi); font-size: 16px; font-weight: 600;
+        }
+        button { 
+            width: 100%; padding: 16px; border-radius: 10px; border: none; font-weight: bold; 
+            font-size: 14px; cursor: pointer; background: var(--mavi); color: white; margin-top: 5px;
+        }
+
+        /* 1-10 Güzergah Paneli */
+        .sira-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 10px 0; }
+        .sira-btn { padding: 12px; background: #f1f5f9; border-radius: 8px; text-align: center; font-weight: bold; color: var(--yazi); border: 2px solid transparent; }
+        .sira-btn.active { background: var(--mavi); color: white; border-color: var(--ana); }
+
+        /* Liste */
+        .etap-baslik { background: #f1f5f9; padding: 10px 15px; border-radius: 8px; font-size: 13px; font-weight: 800; color: var(--ana); margin: 15px 0 5px 0; display: flex; justify-content: space-between; border-left: 5px solid var(--mavi); }
+        .liste-oge { 
+            background: white; padding: 15px; border-radius: 10px; margin-bottom: 5px; 
+            display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0;
+        }
+        .liste-oge.done { opacity: 0.4; background: #f8fafc; text-decoration: line-through; }
+
+        /* Harita */
+        .h-bar { position: fixed; top: 60px; left: 0; right: 0; z-index: 1000; background: #fff; padding: 10px; border-bottom: 1px solid #e2e8f0; display: flex; gap: 10px; }
+        .viewport { position: relative; width: 100%; height: 100%; overflow: auto; background: #f1f5f9; margin-top: 50px; }
+        .canvas { position: relative; display: inline-block; transform-origin: 0 0; }
+        #mapImg { display: block; width: 1500px; height: auto; }
+
+        /* Benzersiz Damla Pin İkonu */
+        .pin-wrapper { position: absolute; transform: translate(-50%, -100%); z-index: 600; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); }
+        .pin-body { 
+            width: 36px; height: 36px; background: var(--kirmizi); border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg); display: flex; align-items: center; justify-content: center;
+            border: 2px solid white;
+        }
+        .pin-text { transform: rotate(45deg); font-weight: 900; font-size: 14px; color: white; }
+        .pin-wrapper.teslim .pin-body { background: var(--yesil); opacity: 0.5; }
+
+        .fab { position: fixed; right: 20px; bottom: 30px; display: flex; flex-direction: column; gap: 12px; z-index: 2000; }
+        .btn-circle { width: 60px; height: 60px; border-radius: 50%; background: white; color: var(--ana); border: 2px solid var(--ana); font-size: 28px; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
+        #pop { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 15px; padding: 25px; z-index: 6000; display: none; width: 90%; text-align: center; box-shadow: 0 0 50px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+
+<div class="tabs">
+    <div class="tab active" onclick="go('list')"><span>DURUM</span><span>LİSTE</span></div>
+    <div class="tab" onclick="go('setup')"><span>SİSTEM</span><span>AYAR</span></div>
+    <div class="tab" onclick="go('map')"><span>CANLI</span><span>HARİTA</span></div>
+</div>
+
+<div id="page-list" class="page active">
+    <div class="card">
+        <h3>🚀 SERİ MÜŞTERİ GİRİŞİ</h3>
+        <p style="font-size: 11px; color: #64748b; margin: 0 0 5px 0;">Ali A1 şeklinde alt alta yapıştırın.</p>
+        <textarea id="seriIn" placeholder="ALİ A1&#10;VELİ B1..." oninput="UB(this)"></textarea>
+        <button onclick="autoProcess()">LİSTEYİ SİSTEME EKLE</button>
+    </div>
+    <div id="renderArea"></div>
+    <button style="background:none; border:1px solid var(--kirmizi); color:var(--kirmizi); margin-top:20px; padding:12px; font-size:12px;" onclick="resetList()">GÜNÜ TEMİZLE</button>
+</div>
+
+<div id="page-setup" class="page">
+    <div class="card">
+        <h3>1. HARİTA (IndexedDB)</h3>
+        <input type="text" id="etapAd" placeholder="ETAP ADI (Örn: 1. ETAP)" oninput="UB(this)">
+        
+        <p style="font-size: 11px; font-weight: bold; margin: 10px 0 0 0;">GÜZERGAH SIRASI (1-10):</p>
+        <div class="sira-grid" id="siraPanel"></div>
+
+        <input type="file" id="etapDosya" accept="image/*">
+        <button onclick="saveEtap()">HARİTAYI SİSTEME KAYDET</button>
+    </div>
+    <div class="card">
+        <h3>2. BLOK KONUMLARI</h3>
+        <select id="setupSel"></select>
+        <button style="background:#475569" onclick="startEdit()">HARİTADA BLOKLARI İŞARETLE</button>
+    </div>
+</div>
+
+<div id="page-map" class="page" style="padding:0;">
+    <div class="h-bar">
+        <select id="mapSel" onchange="loadMap()"></select>
+        <div id="modL" style="font-size:10px; color:var(--kirmizi); font-weight:bold;"></div>
+    </div>
+    <div class="fab">
+        <div class="btn-circle" onclick="zoom(0.3)">+</div>
+        <div class="btn-circle" onclick="zoom(-0.3)">-</div>
+        <div id="btnOK" class="btn-circle" style="background:var(--yesil); color:white; display:none;" onclick="stopEdit()">OK</div>
+    </div>
+    <div id="pop">
+        <div id="popB" style="font-weight:bold; font-size:20px; color:var(--kirmizi);"></div>
+        <div id="popI" style="font-size:24px; margin:15px 0; font-weight:bold; text-align:left;"></div>
+        <button id="btnTeslim" style="background:var(--yesil); padding:18px; font-size:18px;">✓ TESLİM EDİLDİ</button>
+        <button onclick="document.getElementById('pop').style.display='none'" style="background:#94a3b8; margin-top:10px;">KAPAT</button>
+    </div>
+    <div class="viewport">
+        <div class="canvas" id="zemin">
+            <img src="" id="mapImg" onclick="haritaTikla(event)">
+        </div>
+    </div>
+</div>
+
+<script>
+    // INDEXEDDB - Sınırsız Harita Kaydı
+    let idb;
+    const req = indexedDB.open("BurukIDB", 1);
+    req.onupgradeneeded = e => e.target.result.createObjectStore("maps", {keyPath: "id"});
+    req.onsuccess = e => { idb = e.target.result; startup(); };
+
+    let db = JSON.parse(localStorage.getItem('buruk_v42_data')) || { etaps: {}, items: [] };
+    let mod = "view", sc = 0.8, selSira = 1, curBlok = "";
+
+    function UB(el) { el.value = el.value.toLocaleUpperCase('tr-TR'); }
+    function save() { localStorage.setItem('buruk_v42_data', JSON.stringify(db)); }
+
+    function siraPanelKur() {
+        const p = document.getElementById('siraPanel'); p.innerHTML = "";
+        for(let i=1; i<=10; i++){
+            const b = document.createElement('div');
+            b.className = `sira-btn ${i === selSira ? 'active' : ''}`;
+            b.innerText = i;
+            b.onclick = () => { selSira = i; siraPanelKur(); };
+            p.appendChild(b);
+        }
+    }
+
+    // OTOMATİK ETAP AYIRMA (Müşteride etap seçme yok)
+    function autoProcess() {
+        const txt = document.getElementById('seriIn').value.trim().toLocaleUpperCase('tr-TR');
+        if(!txt) return;
+
+        txt.split('\n').forEach(line => {
+            const p = line.trim().split(/\s+/);
+            if(p.length < 2) return;
+            const bl = p.pop(); const is = p.join(" ");
+            
+            // Tüm etapları tara, bu blok hangisinde kayıtlı bak
+            let foundE = null;
+            for(let e in db.etaps) {
+                let tire = bl.includes('-') ? bl : bl[0]+'-'+bl.slice(1);
+                if(db.etaps[e].blks[bl] || db.etaps[e].blks[tire]) { foundE = e; break; }
+            }
+            if(foundE) db.items.push({ is, bl, et: foundE, st: 'wait' });
+            else alert(bl + " BLOĞU HİÇBİR ETAPTA BULUNAMADI! Önce Etap Ayar'dan işaretleyin.");
+        });
+        save(); renderList(); document.getElementById('seriIn').value = "";
+    }
+
+    function renderList() {
+        const m = document.getElementById('renderArea'); m.innerHTML = "";
+        const g = {};
+        db.items.forEach(t => { if(!g[t.et]) g[t.et] = []; g[t.et].push(t); });
+        
+        Object.keys(g).sort((a,b) => db.etaps[a].sira - db.etaps[b].sira).forEach(et => {
+            let h = `<div class="etap-baslik"><span>${db.etaps[et].sira}. ${et}</span> <span>${g[et].length} PAKET</span></div>`;
+            g[et].forEach((t, i) => {
+                h += `<div class="liste-oge ${t.st==='done'?'done':''}">
+                    <span>${t.is} <br><small style="color:var(--mavi); font-weight:bold;">${t.bl}</small></span>
+                    <button style="width:auto; background:var(--kirmizi); padding:6px 12px; border-radius:8px; border:none; color:white;" onclick="delItem('${t.is}','${t.bl}')">X</button>
+                </div>`;
+            });
+            m.innerHTML += h;
+        });
+    }
+
+    // SINIRSIZ HARİTA KAYDI
+    function saveEtap() {
+        const n = document.getElementById('etapAd').value.trim().toUpperCase();
+        const f = document.getElementById('etapDosya').files[0];
+        if(!n || !f) return alert("Eksik bilgi!");
+        const r = new FileReader();
+        r.onload = e => {
+            const tx = idb.transaction("maps", "readwrite");
+            tx.objectStore("maps").put({id: n, data: e.target.result});
+            db.etaps[n] = { blks: {}, sira: selSira };
+            save(); selectors(); alert("Etap Kaydedildi.");
+            document.getElementById('etapAd').value = "";
+        };
+        r.readAsDataURL(f);
+    }
+
+    function selectors() {
+        const ads = Object.keys(db.etaps).sort((a,b) => db.etaps[a].sira - db.etaps[b].sira);
+        const h = ads.length > 0 ? ads.map(e => `<option value="${e}">${e}</option>`).join("") : "<option>Harita Yok</option>";
+        document.getElementById('setupSel').innerHTML = h;
+        document.getElementById('mapSel').innerHTML = h;
+    }
+
+    async function loadMap() {
+        const et = document.getElementById('mapSel').value;
+        if(!et) return;
+        const tx = idb.transaction("maps", "readonly");
+        const r = tx.objectStore("maps").get(et);
+        r.onsuccess = () => { if(r.result) { document.getElementById('mapImg').src = r.result.data; setTimeout(draw, 100); } };
+    }
+
+    function draw() {
+        const et = document.getElementById('mapSel').value;
+        const z = document.getElementById('zemin');
+        z.querySelectorAll('.pin-wrapper').forEach(e=>e.remove());
+        const gr = {};
+        db.items.forEach(t => { if(t.et === et) { if(!gr[t.bl]) gr[t.bl] = {is:[], st:t.st}; gr[t.bl].is.push(t.is); if(t.st==='wait') gr[t.bl].st='wait'; } });
+
+        Object.keys(gr).forEach(bl => {
+            const b = db.etaps[et].blks[bl] || db.etaps[et].blks[bl.includes('-')?bl:bl[0]+'-'+bl.slice(1)];
+            if(b) {
+                const w = document.createElement('div');
+                w.className = 'pin-wrapper ' + (gr[bl].st === 'done' ? 'teslim' : '');
+                w.style.left = b.x+"%"; w.style.top = b.y+"%";
+                w.innerHTML = `<div class="pin-body"><div class="pin-text">${bl.charAt(0)}</div></div>`;
+                w.onclick = e => {
+                    e.stopPropagation(); curBlok = bl;
+                    document.getElementById('popB').innerText = bl;
+                    document.getElementById('popI').innerHTML = gr[bl].is.join("<br>");
+                    document.getElementById('btnTeslim').style.display = gr[bl].st==='done'?'none':'block';
+                    document.getElementById('pop').style.display = 'block';
+                };
+                z.appendChild(w);
+            }
+        });
+    }
+
+    document.getElementById('btnTeslim').onclick = () => {
+        const et = document.getElementById('mapSel').value;
+        db.items.forEach(t => { if(t.bl === curBlok && t.et === et) t.st = 'done'; });
+        save(); draw(); renderList(); document.getElementById('pop').style.display = 'none';
+    };
+
+    function mapClick(e) {
+        if(mod !== "edit") return;
+        const r = document.getElementById('mapImg').getBoundingClientRect();
+        const x = ((e.clientX - r.left) / r.width) * 100;
+        const y = ((e.clientY - r.top) / r.height) * 100;
+        let b = prompt("BLOK ADINI YAZIN:").toLocaleUpperCase('tr-TR');
+        if(b) { db.etaps[document.getElementById('mapSel').value].blks[b] = {x,y}; save(); draw(); }
+    }
+
+    function go(s) {
+        document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+        document.getElementById('page-'+s).classList.add('active');
+        event.currentTarget.classList.add('active');
+        if(s==='map') loadMap(); else mod="view";
+    }
+
+    function zoom(v) { sc = Math.min(Math.max(sc+v, 0.15), 3.5); document.getElementById('zemin').style.transform=`scale(${sc})`; }
+    function startEdit() { mod="edit"; go('map'); document.getElementById('modL').innerText="DÜZENLEME AKTİF"; document.getElementById('btnOK').style.display="flex"; }
+    function stopEdit() { mod="view"; document.getElementById('modL').innerText=""; document.getElementById('btnOK').style.display="none"; }
+    function delItem(is, bl) { db.items = db.items.filter(t => !(t.is===is && t.bl===bl)); save(); renderList(); }
+    function resetList() { if(confirm("Tüm listeyi temizle?")) { db.items = []; save(); renderList(); } }
+    function startup() { siraPanelKur(); selectors(); renderList(); }
+</script>
+
+</body>
+</html>
