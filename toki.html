@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>BURUK TOKİ PRO v48</title>
+    <title>BURUK TOKİ PRO v49</title>
     <style>
         :root { 
             --ana: #0f172a; --arka: #f1f5f9; --yazi: #1e293b; --mavi: #2563eb; 
@@ -13,39 +13,36 @@
         body { margin: 0; background: var(--arka); color: var(--yazi); overflow: hidden; }
 
         .tabs { display: flex; background: var(--ana); height: 65px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 700; font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tab { flex: 1; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 10px; color: #94a3b8; text-transform: uppercase; }
         .tab.active { color: #fff; background: rgba(255,255,255,0.05); }
-        .tab.active::after { content: ''; width: 25px; height: 3px; background: var(--mavi); border-radius: 10px; margin-top: 4px; }
+        .tab.active::after { content: ''; width: 25px; height: 3px; background: var(--mavi); border-radius: 10px; position: absolute; bottom: 10px; }
 
         .page { padding: 15px; height: calc(100vh - 65px); overflow-y: auto; display: none; }
         .page.active { display: block; }
 
-        .card { background: var(--beyaz); padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.05); }
-        h3 { margin: 0 0 10px 0; font-size: 13px; font-weight: 800; color: var(--gri); text-transform: uppercase; letter-spacing: 1px; }
+        .card { background: var(--beyaz); padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05); }
+        h3 { margin: 0 0 10px 0; font-size: 13px; font-weight: 800; color: var(--gri); text-transform: uppercase; }
         
         textarea, input, select { width: 100%; padding: 16px; margin: 8px 0; border-radius: 14px; border: 1px solid #e2e8f0; font-size: 16px; font-weight: 600; background: #f8fafc; color: var(--ana); }
-        .btn-main { width: 100%; padding: 18px; border-radius: 16px; border: none; font-weight: 800; background: var(--mavi); color: white; font-size: 15px; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3); }
+        .btn-main { width: 100%; padding: 18px; border-radius: 16px; border: none; font-weight: 800; background: var(--mavi); color: white; font-size: 15px; }
 
-        .etap-baslik { background: var(--ana); padding: 12px 20px; border-radius: 14px; color: white; font-weight: 800; margin: 25px 0 12px 0; display: flex; justify-content: space-between; align-items: center; }
         .liste-oge { background: var(--beyaz); padding: 18px; border-radius: 18px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(0,0,0,0.03); }
         .liste-oge.done { opacity: 0.5; background: #f1f5f9; filter: grayscale(0.8); }
-
         .m-ad { font-size: 17px; font-weight: 800; color: var(--ana); display: block; }
-        .m-blok { background: #eff6ff; color: var(--mavi); font-size: 12px; font-weight: 900; padding: 4px 10px; border-radius: 8px; width: fit-content; border: 1px solid #dbeafe; display: inline-block; margin-top: 4px; }
+        .m-blok { background: #eff6ff; color: var(--mavi); font-size: 12px; font-weight: 900; padding: 4px 10px; border-radius: 8px; border: 1px solid #dbeafe; display: inline-block; margin-top: 4px; }
 
-        .h-bar { position: fixed; top: 60px; left: 0; right: 0; z-index: 1000; background: var(--beyaz); padding: 12px; border-bottom: 1px solid #e2e8f0; display: flex; gap: 10px; align-items: center; }
+        .h-bar { position: fixed; top: 60px; left: 0; right: 0; z-index: 1000; background: var(--beyaz); padding: 12px; border-bottom: 1px solid #e2e8f0; display: flex; gap: 10px; }
         .viewport { position: relative; width: 100%; height: 100%; overflow: auto; background: #e2e8f0; margin-top: 55px; }
         .canvas { position: relative; display: inline-block; transform-origin: 0 0; }
         #mapImg { display: block; width: 1500px; height: auto; }
 
-        .pin { position: absolute; width: 28px; height: 28px; background: var(--kirmizi); border: 3px solid white; border-radius: 50%; transform: translate(-50%, -50%); z-index: 500; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .pin { position: absolute; width: 28px; height: 28px; background: var(--kirmizi); border: 3px solid white; border-radius: 50%; transform: translate(-50%, -50%); z-index: 500; }
         .pin.done { background: var(--yesil); opacity: 0.6; }
-        .pin.edit-mode { background: #475569; border-color: #f8fafc; }
-        
-        .pin-label { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); background: var(--ana); color: white; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 900; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.2); pointer-events: none; }
+        .pin.edit-mode { background: #475569; }
+        .pin-label { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); background: var(--ana); color: white; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 900; pointer-events: none; }
 
         .fab { position: fixed; right: 20px; bottom: 30px; display: flex; flex-direction: column; gap: 12px; z-index: 2000; }
-        .btn-circle { width: 60px; height: 60px; border-radius: 20px; background: var(--beyaz); color: var(--ana); border: 2px solid #e2e8f0; font-size: 26px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
+        .btn-circle { width: 60px; height: 60px; border-radius: 20px; background: var(--beyaz); border: 2px solid #e2e8f0; font-size: 26px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
 
         #blokPanel { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 92%; background: var(--ana); padding: 20px; border-radius: 24px; z-index: 7000; display: none; }
         #pop { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 24px; padding: 30px; z-index: 6000; display: none; width: 90%; text-align: center; }
@@ -54,14 +51,14 @@
 <body>
 
 <div class="tabs">
-    <div class="tab active" onclick="go('list')"><span>LİSTE</span></div>
-    <div class="tab" onclick="go('setup')"><span>AYARLAR</span></div>
-    <div class="tab" onclick="go('map')"><span>HARİTA</span></div>
+    <div class="tab active" onclick="go('list')">LİSTE</div>
+    <div class="tab" onclick="go('setup')">AYARLAR</div>
+    <div class="tab" onclick="go('map')">HARİTA</div>
 </div>
 
 <div id="page-list" class="page active">
     <div class="card">
-        <h3>🚀 SERİ MÜŞTERİ AKTARIMI</h3>
+        <h3>🚀 MÜŞTERİ LİSTESİ AKTAR</h3>
         <textarea id="seriIn" placeholder="Ali a1&#10;veli b72..." oninput="UB(this)"></textarea>
         <button class="btn-main" onclick="autoProcess()">DAĞITIMA BAŞLA</button>
     </div>
@@ -70,17 +67,28 @@
 </div>
 
 <div id="page-setup" class="page">
+    <div class="card" style="background: #e0f2fe; border: 1px solid #bae6fd;">
+        <h3>💾 HAFIZA YÖNETİMİ (YEDEKLEME)</h3>
+        <p style="font-size:11px; color:#0369a1; margin-bottom:10px;">Tüm blokları ve etapları tek dosyada saklayın.</p>
+        <div style="display:flex; gap:10px;">
+            <button onclick="exportBackup()" style="background:#0369a1; color:white; border:none; padding:12px; border-radius:10px; font-weight:bold; flex:1;">SİSTEMİ YEDEKLE</button>
+            <label style="background:#0ea5e9; color:white; border:none; padding:12px; border-radius:10px; font-weight:bold; flex:1; text-align:center;">
+                YEDEK YÜKLE
+                <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importBackup(this)">
+            </label>
+        </div>
+    </div>
     <div class="card">
-        <h3>1. HARİTA & GÜZERGAH KAYDI</h3>
+        <h3>1. ETAP VE GÜZERGAH SIRA</h3>
         <input type="text" id="etapAd" placeholder="ETAP ADI" oninput="UB(this)">
         <div id="siraPanel" style="display:grid; grid-template-columns: repeat(5,1fr); gap:8px; margin-bottom:10px;"></div>
         <input type="file" id="etapDosya" accept="image/*">
-        <button class="btn-main" onclick="saveEtap()">SİSTEME KAYDET</button>
+        <button class="btn-main" onclick="saveEtap()">ETABI KAYDET</button>
     </div>
     <div class="card">
-        <h3>2. KONUMLANDIRMA</h3>
+        <h3>2. BLOK İŞARETLEME</h3>
         <select id="setupSel"></select>
-        <button class="btn-main" style="background:var(--ana);" onclick="startEdit()">HARİTADA İŞARETLE / DÜZENLE</button>
+        <button class="btn-main" style="background:var(--ana);" onclick="startEdit()">HARİTADA İŞARETLE</button>
     </div>
 </div>
 
@@ -94,23 +102,20 @@
         <div class="btn-circle" onclick="zoom(-0.15)">-</div>
         <div id="btnOK" class="btn-circle" style="background:var(--yesil); color:white; display:none;" onclick="stopEdit()">OK</div>
     </div>
-    
     <div id="blokPanel">
-        <h4 style="color:white; text-align:center; margin-top:0;">BLOK ADINI YAZIN</h4>
+        <h4 style="color:white; text-align:center;">BLOK ADI YAZIN</h4>
         <input type="text" id="yeniBlokAd" placeholder="Örn: B-72" oninput="UB(this)">
         <div style="display:flex; gap:10px; margin-top:15px;">
-            <button onclick="blokKaydet()" style="background:var(--yesil); flex:2; padding:15px; border-radius:12px; border:none; color:white; font-weight:bold;">EKLE</button>
+            <button onclick="blokKaydet()" style="background:var(--yesil); flex:1; padding:15px; border-radius:12px; border:none; color:white; font-weight:bold;">EKLE</button>
             <button onclick="document.getElementById('blokPanel').style.display='none'" style="background:var(--kirmizi); flex:1; border-radius:12px; border:none; color:white; font-weight:bold;">İPTAL</button>
         </div>
     </div>
-
     <div id="pop">
         <div id="popB" style="font-weight:900; font-size:24px; color:var(--mavi); margin-bottom:10px;"></div>
-        <div id="popI" style="font-size:20px; margin:20px 0; font-weight:700; color:var(--ana); text-align:left; line-height:1.5;"></div>
+        <div id="popI" style="font-size:20px; margin:20px 0; font-weight:700; color:var(--ana); text-align:left;"></div>
         <button id="btnTeslim" style="background:var(--yesil); width:100%; padding:20px; border-radius:18px; color:white; border:none; font-weight:bold; font-size:18px;">TESLİM EDİLDİ</button>
         <button onclick="document.getElementById('pop').style.display='none'" style="margin-top:15px; background:none; border:none; color:var(--gri); font-weight:bold;">KAPAT</button>
     </div>
-
     <div class="viewport">
         <div class="canvas" id="zemin">
             <img src="" id="mapImg" onclick="mapClick(event)">
@@ -120,45 +125,58 @@
 
 <script>
     let idb;
-    const req = indexedDB.open("BurukProV48", 1);
+    const req = indexedDB.open("BurukSafeV49", 1);
     req.onupgradeneeded = e => e.target.result.createObjectStore("maps", {keyPath: "id"});
     req.onsuccess = e => { idb = e.target.result; startup(); };
 
-    let db = JSON.parse(localStorage.getItem('buruk_v48_data')) || { etaps: {}, items: [] };
+    let db = JSON.parse(localStorage.getItem('buruk_v49_data')) || { etaps: {}, items: [] };
     let mod = "view", sc = 0.8, selSira = 1, curX = 0, curY = 0;
 
-    // OTOMATİK TÜRKÇE BÜYÜK HARF
-    function UB(el) { 
-        el.value = el.value.toLocaleUpperCase('tr-TR'); 
-    }
-
-    function save() { localStorage.setItem('buruk_v48_data', JSON.stringify(db)); }
+    function UB(el) { el.value = el.value.toLocaleUpperCase('tr-TR'); }
+    function save() { localStorage.setItem('buruk_v49_data', JSON.stringify(db)); }
 
     function startup() {
         const p = document.getElementById('siraPanel'); p.innerHTML = "";
         for(let i=1; i<=10; i++){
             const b = document.createElement('div');
-            b.style = `padding:12px; background:#f1f5f9; border-radius:10px; text-align:center; font-weight:bold; cursor:pointer; ${i===selSira?'background:#2563eb; color:white;':''}`;
-            b.innerText = i;
-            b.onclick = () => { selSira = i; startup(); };
+            b.style = `padding:12px; background:#f1f5f9; border-radius:10px; text-align:center; font-weight:bold; ${i===selSira?'background:#2563eb; color:white;':''}`;
+            b.innerText = i; b.onclick = () => { selSira = i; startup(); };
             p.appendChild(b);
         }
         selectors(); renderList();
     }
 
-    // AKILLI BLOK EŞLEŞTİRME (TİRE TAHMİNİ)
+    // YEDEKLEME FONKSİYONLARI
+    function exportBackup() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+        const dlAnchorElem = document.createElement('a');
+        dlAnchorElem.setAttribute("href", dataStr);
+        dlAnchorElem.setAttribute("download", "toki_yedek.json");
+        dlAnchorElem.click();
+    }
+
+    function importBackup(input) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (imported.etaps) {
+                    db = imported;
+                    save(); startup();
+                    alert("Tüm bloklar ve etaplar başarıyla yüklendi!");
+                }
+            } catch (err) { alert("Hatalı dosya!"); }
+        };
+        reader.readAsText(input.files[0]);
+    }
+
     function getSmartMatch(inputBlok, et) {
         let bList = db.etaps[et].blks;
-        if (bList[inputBlok]) return inputBlok; // Tam eşleşme
-
-        // Tire ekleyerek dene (B72 -> B-72)
+        if (bList[inputBlok]) return inputBlok;
         let withTire = inputBlok.length > 1 ? inputBlok[0] + '-' + inputBlok.slice(1) : inputBlok;
         if (bList[withTire]) return withTire;
-
-        // Tire çıkartarak dene (B-72 -> B72)
         let withoutTire = inputBlok.replace('-', '');
         if (bList[withoutTire]) return withoutTire;
-
         return inputBlok;
     }
 
@@ -167,22 +185,14 @@
         if(!txt) return;
         txt.split('\n').forEach(line => {
             const p = line.trim().split(/\s+/); if(p.length < 2) return;
-            const rawBl = p.pop(); 
-            const is = p.join(" ");
-
-            let foundE = null;
-            let finalBl = rawBl;
-
+            const rawBl = p.pop(); const is = p.join(" ");
+            let foundE = null; let finalBl = rawBl;
             for(let e in db.etaps) {
                 let match = getSmartMatch(rawBl, e);
-                if(db.etaps[e].blks[match]) {
-                    foundE = e;
-                    finalBl = match;
-                    break;
-                }
+                if(db.etaps[e].blks[match]) { foundE = e; finalBl = match; break; }
             }
             if(foundE) db.items.push({ is, bl: finalBl, et: foundE, st: 'wait' });
-            else alert(rawBl + " bulunamadı! Lütfen önce bu bloğu Ayarlar kısmından haritada işaretleyin.");
+            else alert(rawBl + " bulunamadı! Lütfen önce bu bloğu işaretleyin.");
         });
         save(); renderList(); document.getElementById('seriIn').value = "";
     }
@@ -192,7 +202,7 @@
         const g = {};
         db.items.forEach(t => { if(!g[t.et]) g[t.et] = []; g[t.et].push(t); });
         Object.keys(g).sort((a,b) => db.etaps[a].sira - db.etaps[b].sira).forEach(et => {
-            let h = `<div class="etap-baslik"><span>${db.etaps[et].sira}. ${et}</span> <span>${g[et].length} PAKET</span></div>`;
+            let h = `<div class="etap-baslik"><span>${db.etaps[et].sira}. ${et}</span> <span>${g[et].length} PKT</span></div>`;
             g[et].forEach(t => {
                 h += `<div class="liste-oge ${t.st==='done'?'done':''}">
                     <div class="m-bilgi"><span class="m-ad">${t.is}</span><span class="m-blok">${t.bl}</span></div>
@@ -234,25 +244,16 @@
     function draw() {
         const et = document.getElementById('mapSel').value; const z = document.getElementById('zemin');
         z.querySelectorAll('.pin, .pin-label').forEach(e=>e.remove());
-        const blks = db.etaps[et].blks;
-        const kargolar = {};
+        const blks = db.etaps[et].blks; const kargolar = {};
         db.items.forEach(t => { if(t.et === et) { if(!kargolar[t.bl]) kargolar[t.bl] = {is:[], st:t.st}; kargolar[t.bl].is.push(t.is); if(t.st==='wait') kargolar[t.bl].st='wait'; } });
-
         if(mod === "edit") {
             Object.keys(blks).forEach(bl => {
                 const p = createPin(z, blks[bl].x, blks[bl].y, bl, true);
-                p.onclick = (e) => {
-                    e.stopPropagation();
-                    if(confirm(bl + " bloğunu silmek istiyor musun?")) {
-                        delete db.etaps[et].blks[bl];
-                        save(); draw();
-                    }
-                };
+                p.onclick = (e) => { e.stopPropagation(); if(confirm(bl + " silinsin mi?")) { delete db.etaps[et].blks[bl]; save(); draw(); } };
             });
         } else {
             Object.keys(kargolar).forEach(bl => {
-                const b = blks[bl];
-                if(b) {
+                const b = blks[bl]; if(b) {
                     const p = createPin(z, b.x, b.y, bl, false, kargolar[bl].st);
                     p.onclick = e => {
                         e.stopPropagation();
@@ -291,11 +292,7 @@
 
     function blokKaydet() {
         const b = document.getElementById('yeniBlokAd').value.trim().toUpperCase();
-        if(b) {
-            db.etaps[document.getElementById('mapSel').value].blks[b] = {x: curX, y: curY};
-            save(); draw();
-            document.getElementById('blokPanel').style.display = 'none';
-        }
+        if(b) { db.etaps[document.getElementById('mapSel').value].blks[b] = {x: curX, y: curY}; save(); draw(); document.getElementById('blokPanel').style.display = 'none'; }
     }
 
     function go(s) {
@@ -306,12 +303,8 @@
         if(s==='map') loadMap(); else mod="view";
     }
 
-    function zoom(v) { 
-        sc = Math.min(Math.max(sc + v, 0.3), 3.0); 
-        document.getElementById('zemin').style.transform=`scale(${sc})`; 
-    }
-
-    function startEdit() { mod="edit"; go('map'); document.getElementById('modL').innerText="DÜZENLEME MODU (SİLMEK İÇİN PİNE DOKUN)"; document.getElementById('btnOK').style.display="flex"; }
+    function zoom(v) { sc = Math.min(Math.max(sc + v, 0.3), 3.0); document.getElementById('zemin').style.transform=`scale(${sc})`; }
+    function startEdit() { mod="edit"; go('map'); document.getElementById('modL').innerText="DÜZENLEME AKTİF"; document.getElementById('btnOK').style.display="flex"; }
     function stopEdit() { mod="view"; document.getElementById('modL').innerText=""; document.getElementById('btnOK').style.display="none"; }
     function delItem(is, bl) { db.items = db.items.filter(t => !(t.is===is && t.bl===bl)); save(); renderList(); }
     function resetList() { if(confirm("Sıfırlansın mı?")) { db.items = []; save(); renderList(); } }
