@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>BURUK TOKİ PRO v49</title>
+    <title>BURUK TOKİ PRO v50</title>
     <style>
         :root { 
             --ana: #0f172a; --arka: #f1f5f9; --yazi: #1e293b; --mavi: #2563eb; 
@@ -12,7 +12,7 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; }
         body { margin: 0; background: var(--arka); color: var(--yazi); overflow: hidden; }
 
-        .tabs { display: flex; background: var(--ana); height: 65px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .tabs { display: flex; background: var(--ana); height: 65px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .tab { flex: 1; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 10px; color: #94a3b8; text-transform: uppercase; }
         .tab.active { color: #fff; background: rgba(255,255,255,0.05); }
         .tab.active::after { content: ''; width: 25px; height: 3px; background: var(--mavi); border-radius: 10px; position: absolute; bottom: 10px; }
@@ -68,34 +68,36 @@
 
 <div id="page-setup" class="page">
     <div class="card" style="background: #e0f2fe; border: 1px solid #bae6fd;">
-        <h3>💾 HAFIZA YÖNETİMİ (YEDEKLEME)</h3>
-        <p style="font-size:11px; color:#0369a1; margin-bottom:10px;">Tüm blokları ve etapları tek dosyada saklayın.</p>
+        <h3>💾 HAFIZA YÖNETİMİ</h3>
         <div style="display:flex; gap:10px;">
-            <button onclick="exportBackup()" style="background:#0369a1; color:white; border:none; padding:12px; border-radius:10px; font-weight:bold; flex:1;">SİSTEMİ YEDEKLE</button>
+            <button onclick="exportBackup()" style="background:#0369a1; color:white; border:none; padding:12px; border-radius:10px; font-weight:bold; flex:1;">YEDEKLE</button>
             <label style="background:#0ea5e9; color:white; border:none; padding:12px; border-radius:10px; font-weight:bold; flex:1; text-align:center;">
-                YEDEK YÜKLE
+                YÜKLE
                 <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importBackup(this)">
             </label>
         </div>
     </div>
     <div class="card">
-        <h3>1. ETAP VE GÜZERGAH SIRA</h3>
+        <h3>1. YENİ ETAP EKLE</h3>
         <input type="text" id="etapAd" placeholder="ETAP ADI" oninput="UB(this)">
         <div id="siraPanel" style="display:grid; grid-template-columns: repeat(5,1fr); gap:8px; margin-bottom:10px;"></div>
         <input type="file" id="etapDosya" accept="image/*">
         <button class="btn-main" onclick="saveEtap()">ETABI KAYDET</button>
     </div>
     <div class="card">
-        <h3>2. BLOK İŞARETLEME</h3>
-        <select id="setupSel"></select>
-        <button class="btn-main" style="background:var(--ana);" onclick="startEdit()">HARİTADA İŞARETLE</button>
+        <h3>2. ETAP VE BLOK YÖNETİMİ</h3>
+        <div style="display:flex; gap:10px; align-items:center;">
+            <select id="setupSel" style="flex:2;"></select>
+            <button onclick="deleteEtap()" style="background:var(--kirmizi); color:white; border:none; padding:15px; border-radius:14px; font-weight:bold; flex:1;">SİL</button>
+        </div>
+        <button class="btn-main" style="background:var(--ana); margin-top:10px;" onclick="startEdit()">HARİTADA BLOKLARI DÜZENLE</button>
     </div>
 </div>
 
 <div id="page-map" class="page" style="padding:0;">
     <div class="h-bar">
         <select id="mapSel" onchange="loadMap()" style="flex:1; padding:10px;"></select>
-        <div id="modL" style="font-size:10px; color:var(--kirmizi); font-weight:900; margin-left:10px;"></div>
+        <div id="modL" style="font-size:10px; color:var(--kirmizi); font-weight:900;"></div>
     </div>
     <div class="fab">
         <div class="btn-circle" onclick="zoom(0.15)">+</div>
@@ -125,15 +127,15 @@
 
 <script>
     let idb;
-    const req = indexedDB.open("BurukSafeV49", 1);
+    const req = indexedDB.open("BurukSafeV50", 1);
     req.onupgradeneeded = e => e.target.result.createObjectStore("maps", {keyPath: "id"});
     req.onsuccess = e => { idb = e.target.result; startup(); };
 
-    let db = JSON.parse(localStorage.getItem('buruk_v49_data')) || { etaps: {}, items: [] };
+    let db = JSON.parse(localStorage.getItem('buruk_v50_data')) || { etaps: {}, items: [] };
     let mod = "view", sc = 0.8, selSira = 1, curX = 0, curY = 0;
 
     function UB(el) { el.value = el.value.toLocaleUpperCase('tr-TR'); }
-    function save() { localStorage.setItem('buruk_v49_data', JSON.stringify(db)); }
+    function save() { localStorage.setItem('buruk_v50_data', JSON.stringify(db)); }
 
     function startup() {
         const p = document.getElementById('siraPanel'); p.innerHTML = "";
@@ -146,7 +148,28 @@
         selectors(); renderList();
     }
 
-    // YEDEKLEME FONKSİYONLARI
+    // ETAP SİLME FONKSİYONU
+    function deleteEtap() {
+        const et = document.getElementById('setupSel').value;
+        if (!et || et === "Harita Yok") return;
+        
+        if (confirm(et + " etabını ve bu etaba ait TÜM harita/blok verilerini silmek istediğine emin misin?")) {
+            // 1. IndexedDB'den resmi sil
+            const tx = idb.transaction("maps", "readwrite");
+            tx.objectStore("maps").delete(et);
+            
+            // 2. localStorage verilerinden sil
+            delete db.etaps[et];
+            
+            // 3. Bu etaba ait aktif teslimatlar varsa onları da temizle (isteğe bağlı)
+            db.items = db.items.filter(item => item.et !== et);
+            
+            save();
+            startup();
+            alert("Etap başarıyla silindi.");
+        }
+    }
+
     function exportBackup() {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
         const dlAnchorElem = document.createElement('a');
@@ -160,11 +183,7 @@
         reader.onload = e => {
             try {
                 const imported = JSON.parse(e.target.result);
-                if (imported.etaps) {
-                    db = imported;
-                    save(); startup();
-                    alert("Tüm bloklar ve etaplar başarıyla yüklendi!");
-                }
+                if (imported.etaps) { db = imported; save(); startup(); alert("Yedek yüklendi!"); }
             } catch (err) { alert("Hatalı dosya!"); }
         };
         reader.readAsText(input.files[0]);
@@ -192,7 +211,7 @@
                 if(db.etaps[e].blks[match]) { foundE = e; finalBl = match; break; }
             }
             if(foundE) db.items.push({ is, bl: finalBl, et: foundE, st: 'wait' });
-            else alert(rawBl + " bulunamadı! Lütfen önce bu bloğu işaretleyin.");
+            else alert(rawBl + " bulunamadı! Lütfen önce işaretleyin.");
         });
         save(); renderList(); document.getElementById('seriIn').value = "";
     }
@@ -223,6 +242,7 @@
             tx.objectStore("maps").put({id: n, data: e.target.result});
             db.etaps[n] = { blks: {}, sira: selSira };
             save(); selectors(); alert("Etap Kaydedildi.");
+            document.getElementById('etapAd').value = "";
         };
         r.readAsDataURL(f);
     }
@@ -235,14 +255,15 @@
     }
 
     async function loadMap() {
-        const et = document.getElementById('mapSel').value; if(!et) return;
+        const et = document.getElementById('mapSel').value; if(!et || et === "Harita Yok") return;
         const tx = idb.transaction("maps", "readonly");
         const r = tx.objectStore("maps").get(et);
         r.onsuccess = () => { if(r.result) { document.getElementById('mapImg').src = r.result.data; setTimeout(draw, 100); } };
     }
 
     function draw() {
-        const et = document.getElementById('mapSel').value; const z = document.getElementById('zemin');
+        const et = document.getElementById('mapSel').value; if(!et || et === "Harita Yok") return;
+        const z = document.getElementById('zemin');
         z.querySelectorAll('.pin, .pin-label').forEach(e=>e.remove());
         const blks = db.etaps[et].blks; const kargolar = {};
         db.items.forEach(t => { if(t.et === et) { if(!kargolar[t.bl]) kargolar[t.bl] = {is:[], st:t.st}; kargolar[t.bl].is.push(t.is); if(t.st==='wait') kargolar[t.bl].st='wait'; } });
