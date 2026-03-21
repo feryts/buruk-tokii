@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>BURUK TOKİ PRO v50</title>
+    <title>BURUK TOKİ PRO v51 - GPS</title>
     <style>
         :root { 
             --ana: #0f172a; --arka: #f1f5f9; --yazi: #1e293b; --mavi: #2563eb; 
@@ -33,16 +33,30 @@
 
         .h-bar { position: fixed; top: 60px; left: 0; right: 0; z-index: 1000; background: var(--beyaz); padding: 12px; border-bottom: 1px solid #e2e8f0; display: flex; gap: 10px; }
         .viewport { position: relative; width: 100%; height: 100%; overflow: auto; background: #e2e8f0; margin-top: 55px; }
-        .canvas { position: relative; display: inline-block; transform-origin: 0 0; }
+        .canvas { position: relative; display: inline-block; transform-origin: 0 0; transition: transform 0.1s linear; }
         #mapImg { display: block; width: 1500px; height: auto; }
 
         .pin { position: absolute; width: 28px; height: 28px; background: var(--kirmizi); border: 3px solid white; border-radius: 50%; transform: translate(-50%, -50%); z-index: 500; }
         .pin.done { background: var(--yesil); opacity: 0.6; }
-        .pin.edit-mode { background: #475569; }
         .pin-label { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); background: var(--ana); color: white; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 900; pointer-events: none; }
+
+        /* MAVİ NOKTA (GPS) */
+        .user-dot { 
+            position: absolute; width: 20px; height: 20px; background: #3b82f6; 
+            border: 3px solid white; border-radius: 50%; transform: translate(-50%, -50%); 
+            z-index: 1000; box-shadow: 0 0 15px rgba(59, 130, 246, 0.8);
+            pointer-events: none;
+        }
+        .user-dot::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: rgba(59, 130, 246, 0.3); border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
 
         .fab { position: fixed; right: 20px; bottom: 30px; display: flex; flex-direction: column; gap: 12px; z-index: 2000; }
         .btn-circle { width: 60px; height: 60px; border-radius: 20px; background: var(--beyaz); border: 2px solid #e2e8f0; font-size: 26px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
+        .btn-circle.active { background: var(--mavi); color: white; border-color: var(--ana); }
 
         #blokPanel { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 92%; background: var(--ana); padding: 20px; border-radius: 24px; z-index: 7000; display: none; }
         #pop { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 24px; padding: 30px; z-index: 6000; display: none; width: 90%; text-align: center; }
@@ -67,30 +81,28 @@
 </div>
 
 <div id="page-setup" class="page">
-    <div class="card" style="background: #e0f2fe; border: 1px solid #bae6fd;">
-        <h3>💾 HAFIZA YÖNETİMİ</h3>
-        <div style="display:flex; gap:10px;">
-            <button onclick="exportBackup()" style="background:#0369a1; color:white; border:none; padding:12px; border-radius:10px; font-weight:bold; flex:1;">YEDEKLE</button>
-            <label style="background:#0ea5e9; color:white; border:none; padding:12px; border-radius:10px; font-weight:bold; flex:1; text-align:center;">
-                YÜKLE
-                <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importBackup(this)">
-            </label>
+    <div class="card" style="background: #e0f2fe;">
+        <h3>💾 YEDEKLEME VE GPS</h3>
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <button onclick="exportBackup()" style="background:#0369a1; color:white; border:none; padding:12px; border-radius:10px; flex:1; font-weight:bold;">YEDEKLE</button>
+            <label style="background:#0ea5e9; color:white; border:none; padding:12px; border-radius:10px; flex:1; text-align:center; font-weight:bold;">YÜKLE<input type="file" accept=".json" style="display:none;" onchange="importBackup(this)"></label>
         </div>
+        <button onclick="startCalibration()" style="background:var(--ana); color:white; border:none; padding:15px; border-radius:10px; width:100%; font-weight:bold;">🛰️ HARİTAYI GPS'E BAĞLA (KALİBRE)</button>
     </div>
     <div class="card">
-        <h3>1. YENİ ETAP EKLE</h3>
+        <h3>1. ETAP KAYDI</h3>
         <input type="text" id="etapAd" placeholder="ETAP ADI" oninput="UB(this)">
         <div id="siraPanel" style="display:grid; grid-template-columns: repeat(5,1fr); gap:8px; margin-bottom:10px;"></div>
         <input type="file" id="etapDosya" accept="image/*">
         <button class="btn-main" onclick="saveEtap()">ETABI KAYDET</button>
     </div>
     <div class="card">
-        <h3>2. ETAP VE BLOK YÖNETİMİ</h3>
-        <div style="display:flex; gap:10px; align-items:center;">
+        <h3>2. YÖNETİM</h3>
+        <div style="display:flex; gap:10px;">
             <select id="setupSel" style="flex:2;"></select>
-            <button onclick="deleteEtap()" style="background:var(--kirmizi); color:white; border:none; padding:15px; border-radius:14px; font-weight:bold; flex:1;">SİL</button>
+            <button onclick="deleteEtap()" style="background:var(--kirmizi); color:white; border:none; padding:15px; border-radius:14px; flex:1; font-weight:bold;">SİL</button>
         </div>
-        <button class="btn-main" style="background:var(--ana); margin-top:10px;" onclick="startEdit()">HARİTADA BLOKLARI DÜZENLE</button>
+        <button class="btn-main" style="background:var(--ana); margin-top:10px;" onclick="startEdit()">BLOKLARI DÜZENLE</button>
     </div>
 </div>
 
@@ -102,13 +114,14 @@
     <div class="fab">
         <div class="btn-circle" onclick="zoom(0.15)">+</div>
         <div class="btn-circle" onclick="zoom(-0.15)">-</div>
+        <div id="gpsBtn" class="btn-circle" onclick="toggleGPS()">🛰️</div>
         <div id="btnOK" class="btn-circle" style="background:var(--yesil); color:white; display:none;" onclick="stopEdit()">OK</div>
     </div>
     <div id="blokPanel">
-        <h4 style="color:white; text-align:center;">BLOK ADI YAZIN</h4>
+        <h4 id="panelBaslik" style="color:white; text-align:center;">BLOK ADI YAZIN</h4>
         <input type="text" id="yeniBlokAd" placeholder="Örn: B-72" oninput="UB(this)">
         <div style="display:flex; gap:10px; margin-top:15px;">
-            <button onclick="blokKaydet()" style="background:var(--yesil); flex:1; padding:15px; border-radius:12px; border:none; color:white; font-weight:bold;">EKLE</button>
+            <button id="btnPanelKaydet" onclick="blokKaydet()" style="background:var(--yesil); flex:1; padding:15px; border-radius:12px; border:none; color:white; font-weight:bold;">EKLE</button>
             <button onclick="document.getElementById('blokPanel').style.display='none'" style="background:var(--kirmizi); flex:1; border-radius:12px; border:none; color:white; font-weight:bold;">İPTAL</button>
         </div>
     </div>
@@ -118,24 +131,26 @@
         <button id="btnTeslim" style="background:var(--yesil); width:100%; padding:20px; border-radius:18px; color:white; border:none; font-weight:bold; font-size:18px;">TESLİM EDİLDİ</button>
         <button onclick="document.getElementById('pop').style.display='none'" style="margin-top:15px; background:none; border:none; color:var(--gri); font-weight:bold;">KAPAT</button>
     </div>
-    <div class="viewport">
+    <div class="viewport" id="vPort">
         <div class="canvas" id="zemin">
             <img src="" id="mapImg" onclick="mapClick(event)">
+            <div id="userDot" class="user-dot" style="display:none;"></div>
         </div>
     </div>
 </div>
 
 <script>
     let idb;
-    const req = indexedDB.open("BurukSafeV50", 1);
+    const req = indexedDB.open("BurukGPSV51", 1);
     req.onupgradeneeded = e => e.target.result.createObjectStore("maps", {keyPath: "id"});
     req.onsuccess = e => { idb = e.target.result; startup(); };
 
-    let db = JSON.parse(localStorage.getItem('buruk_v50_data')) || { etaps: {}, items: [] };
+    let db = JSON.parse(localStorage.getItem('buruk_v51_data')) || { etaps: {}, items: [] };
     let mod = "view", sc = 0.8, selSira = 1, curX = 0, curY = 0;
+    let watchID = null, gpsActive = false;
 
     function UB(el) { el.value = el.value.toLocaleUpperCase('tr-TR'); }
-    function save() { localStorage.setItem('buruk_v50_data', JSON.stringify(db)); }
+    function save() { localStorage.setItem('buruk_v51_data', JSON.stringify(db)); }
 
     function startup() {
         const p = document.getElementById('siraPanel'); p.innerHTML = "";
@@ -148,57 +163,58 @@
         selectors(); renderList();
     }
 
-    // ETAP SİLME FONKSİYONU
-    function deleteEtap() {
-        const et = document.getElementById('setupSel').value;
-        if (!et || et === "Harita Yok") return;
-        
-        if (confirm(et + " etabını ve bu etaba ait TÜM harita/blok verilerini silmek istediğine emin misin?")) {
-            // 1. IndexedDB'den resmi sil
-            const tx = idb.transaction("maps", "readwrite");
-            tx.objectStore("maps").delete(et);
-            
-            // 2. localStorage verilerinden sil
-            delete db.etaps[et];
-            
-            // 3. Bu etaba ait aktif teslimatlar varsa onları da temizle (isteğe bağlı)
-            db.items = db.items.filter(item => item.et !== et);
-            
-            save();
-            startup();
-            alert("Etap başarıyla silindi.");
+    // --- GPS VE KALİBRASYON MANTIĞI ---
+    function toggleGPS() {
+        if (!gpsActive) {
+            const et = document.getElementById('mapSel').value;
+            if (!db.etaps[et].calib || db.etaps[et].calib.length < 2) {
+                alert("Önce bu etap için Ayarlar'dan kalibrasyon yapmalısın!");
+                return;
+            }
+            if (navigator.geolocation) {
+                gpsActive = true;
+                document.getElementById('gpsBtn').classList.add('active');
+                document.getElementById('userDot').style.display = 'block';
+                watchID = navigator.geolocation.watchPosition(updateUserPos, (err) => console.log(err), { enableHighAccuracy: true });
+            }
+        } else {
+            gpsActive = false;
+            document.getElementById('gpsBtn').classList.remove('active');
+            document.getElementById('userDot').style.display = 'none';
+            if (watchID) navigator.geolocation.clearWatch(watchID);
         }
     }
 
-    function exportBackup() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
-        const dlAnchorElem = document.createElement('a');
-        dlAnchorElem.setAttribute("href", dataStr);
-        dlAnchorElem.setAttribute("download", "toki_yedek.json");
-        dlAnchorElem.click();
+    function updateUserPos(pos) {
+        const et = document.getElementById('mapSel').value;
+        const cal = db.etaps[et].calib;
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+
+        // İki nokta arası lineer interpolasyon (Basit koordinat-piksel dönüştürücü)
+        const latRatio = (lat - cal[0].lat) / (cal[1].lat - cal[0].lat);
+        const lngRatio = (lng - cal[0].lng) / (cal[1].lng - cal[0].lng);
+
+        const x = cal[0].x + (cal[1].x - cal[0].x) * latRatio;
+        const y = cal[0].y + (cal[1].y - cal[0].y) * lngRatio;
+
+        const dot = document.getElementById('userDot');
+        dot.style.left = x + "%";
+        dot.style.top = y + "%";
     }
 
-    function importBackup(input) {
-        const reader = new FileReader();
-        reader.onload = e => {
-            try {
-                const imported = JSON.parse(e.target.result);
-                if (imported.etaps) { db = imported; save(); startup(); alert("Yedek yüklendi!"); }
-            } catch (err) { alert("Hatalı dosya!"); }
-        };
-        reader.readAsText(input.files[0]);
+    function startCalibration() {
+        const et = document.getElementById('setupSel').value;
+        if (!et || et === "Harita Yok") return alert("Önce bir etap seçin.");
+        alert("KALİBRASYON BAŞLADI:\n1. Haritanın bir ucundaki (örn: A1) bloğun yanına gidin.\n2. Haritada o bloğu bulup üzerine tıklayın.\n3. Aynı işlemi haritanın diğer ucundaki bir blok için tekrarlayın.");
+        db.etaps[et].calib = [];
+        mod = "calibrate";
+        go('map');
+        document.getElementById('modL').innerText = "KALİBRASYON: 1. NOKTAYA TIKLA";
+        document.getElementById('btnOK').style.display = "flex";
     }
 
-    function getSmartMatch(inputBlok, et) {
-        let bList = db.etaps[et].blks;
-        if (bList[inputBlok]) return inputBlok;
-        let withTire = inputBlok.length > 1 ? inputBlok[0] + '-' + inputBlok.slice(1) : inputBlok;
-        if (bList[withTire]) return withTire;
-        let withoutTire = inputBlok.replace('-', '');
-        if (bList[withoutTire]) return withoutTire;
-        return inputBlok;
-    }
-
+    // --- GENEL FONKSİYONLAR ---
     function autoProcess() {
         const txt = document.getElementById('seriIn').value.trim().toLocaleUpperCase('tr-TR');
         if(!txt) return;
@@ -211,9 +227,19 @@
                 if(db.etaps[e].blks[match]) { foundE = e; finalBl = match; break; }
             }
             if(foundE) db.items.push({ is, bl: finalBl, et: foundE, st: 'wait' });
-            else alert(rawBl + " bulunamadı! Lütfen önce işaretleyin.");
+            else alert(rawBl + " bulunamadı!");
         });
         save(); renderList(); document.getElementById('seriIn').value = "";
+    }
+
+    function getSmartMatch(inputBlok, et) {
+        let bList = db.etaps[et].blks;
+        if (bList[inputBlok]) return inputBlok;
+        let withTire = inputBlok.length > 1 ? inputBlok[0] + '-' + inputBlok.slice(1) : inputBlok;
+        if (bList[withTire]) return withTire;
+        let withoutTire = inputBlok.replace('-', '');
+        if (bList[withoutTire]) return withoutTire;
+        return inputBlok;
     }
 
     function renderList() {
@@ -240,11 +266,20 @@
         r.onload = e => {
             const tx = idb.transaction("maps", "readwrite");
             tx.objectStore("maps").put({id: n, data: e.target.result});
-            db.etaps[n] = { blks: {}, sira: selSira };
-            save(); selectors(); alert("Etap Kaydedildi.");
-            document.getElementById('etapAd').value = "";
+            db.etaps[n] = { blks: {}, sira: selSira, calib: [] };
+            save(); selectors(); alert("Kaydedildi.");
         };
         r.readAsDataURL(f);
+    }
+
+    function deleteEtap() {
+        const et = document.getElementById('setupSel').value;
+        if (confirm(et + " silinsin mi?")) {
+            const tx = idb.transaction("maps", "readwrite");
+            tx.objectStore("maps").delete(et);
+            delete db.etaps[et];
+            save(); startup();
+        }
     }
 
     function selectors() {
@@ -267,17 +302,14 @@
         z.querySelectorAll('.pin, .pin-label').forEach(e=>e.remove());
         const blks = db.etaps[et].blks; const kargolar = {};
         db.items.forEach(t => { if(t.et === et) { if(!kargolar[t.bl]) kargolar[t.bl] = {is:[], st:t.st}; kargolar[t.bl].is.push(t.is); if(t.st==='wait') kargolar[t.bl].st='wait'; } });
-        if(mod === "edit") {
-            Object.keys(blks).forEach(bl => {
-                const p = createPin(z, blks[bl].x, blks[bl].y, bl, true);
-                p.onclick = (e) => { e.stopPropagation(); if(confirm(bl + " silinsin mi?")) { delete db.etaps[et].blks[bl]; save(); draw(); } };
-            });
-        } else {
-            Object.keys(kargolar).forEach(bl => {
-                const b = blks[bl]; if(b) {
-                    const p = createPin(z, b.x, b.y, bl, false, kargolar[bl].st);
-                    p.onclick = e => {
-                        e.stopPropagation();
+        Object.keys(mod === "edit" ? blks : kargolar).forEach(bl => {
+            const b = blks[bl] || blks[bl.includes('-')?bl:bl[0]+'-'+bl.slice(1)];
+            if(b) {
+                const p = createPin(z, b.x, b.y, bl, mod === "edit", kargolar[bl]?.st);
+                p.onclick = (e) => {
+                    e.stopPropagation();
+                    if(mod === "edit") { if(confirm(bl + " silinsin mi?")) { delete db.etaps[et].blks[bl]; save(); draw(); } }
+                    else {
                         document.getElementById('popB').innerText = bl;
                         document.getElementById('popI').innerHTML = kargolar[bl].is.join("<br>");
                         document.getElementById('btnTeslim').onclick = () => {
@@ -285,10 +317,10 @@
                             save(); draw(); renderList(); document.getElementById('pop').style.display = 'none';
                         };
                         document.getElementById('pop').style.display = 'block';
-                    };
-                }
-            });
-        }
+                    }
+                };
+            }
+        });
     }
 
     function createPin(container, x, y, name, isEdit, status = 'wait') {
@@ -302,13 +334,21 @@
     }
 
     function mapClick(e) {
-        if(mod !== "edit") return;
         const r = document.getElementById('mapImg').getBoundingClientRect();
         curX = ((e.clientX - r.left) / r.width) * 100;
         curY = ((e.clientY - r.top) / r.height) * 100;
-        document.getElementById('yeniBlokAd').value = "";
-        document.getElementById('blokPanel').style.display = 'block';
-        document.getElementById('yeniBlokAd').focus();
+
+        if (mod === "edit") {
+            document.getElementById('blokPanel').style.display = 'block';
+            document.getElementById('yeniBlokAd').focus();
+        } else if (mod === "calibrate") {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                const et = document.getElementById('mapSel').value;
+                db.etaps[et].calib.push({ x: curX, y: curY, lat: pos.coords.latitude, lng: pos.coords.longitude });
+                if (db.etaps[et].calib.length === 1) document.getElementById('modL').innerText = "2. NOKTAYA TIKLA";
+                else { stopEdit(); alert("Kalibrasyon tamamlandı!"); save(); }
+            });
+        }
     }
 
     function blokKaydet() {
@@ -321,7 +361,7 @@
         document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
         document.getElementById('page-'+s).classList.add('active');
         event.currentTarget.classList.add('active');
-        if(s==='map') loadMap(); else mod="view";
+        if(s==='map') loadMap(); else { mod="view"; stopEdit(); }
     }
 
     function zoom(v) { sc = Math.min(Math.max(sc + v, 0.3), 3.0); document.getElementById('zemin').style.transform=`scale(${sc})`; }
@@ -329,6 +369,15 @@
     function stopEdit() { mod="view"; document.getElementById('modL').innerText=""; document.getElementById('btnOK').style.display="none"; }
     function delItem(is, bl) { db.items = db.items.filter(t => !(t.is===is && t.bl===bl)); save(); renderList(); }
     function resetList() { if(confirm("Sıfırlansın mı?")) { db.items = []; save(); renderList(); } }
+    function exportBackup() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+        const a = document.createElement('a'); a.href = dataStr; a.download = "toki_yedek.json"; a.click();
+    }
+    function importBackup(input) {
+        const r = new FileReader();
+        r.onload = e => { db = JSON.parse(e.target.result); save(); startup(); alert("Yedek yüklendi!"); };
+        r.readAsText(input.files[0]);
+    }
 </script>
 </body>
 </html>
