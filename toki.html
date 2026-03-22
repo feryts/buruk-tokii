@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>BURUK TOKİ MASTER v72</title>
+    <title>BURUK TOKİ MASTER v73</title>
     <style>
-        :root { --ana: #0f172a; --arka: #f1f5f9; --yazi: #1e293b; --mavi: #2563eb; --kirmizi: #ef4444; --yesil: #22c55e; --beyaz: #ffffff; --gri: #64748b; --zoom: 0.5; }
+        :root { --ana: #0f172a; --arka: #f1f5f9; --yazi: #1e293b; --mavi: #2563eb; --kirmizi: #ef4444; --yesil: #22c55e; --beyaz: #ffffff; --gri: rgba(100, 116, 139, 0.6); --turuncu: #f59e0b; --zoom: 0.5; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; }
         body { margin: 0; background: var(--arka); color: var(--yazi); overflow: hidden; position: fixed; width: 100%; height: 100%; }
 
-        /* Üst Sekmeler */
+        /* Üst Menü */
         .tabs { display: flex; background: var(--ana); height: 60px; z-index: 2000; position: relative; }
         .tab { flex: 1; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; color: #94a3b8; text-transform: uppercase; }
         .tab.active { color: #fff; border-bottom: 3px solid var(--mavi); background: rgba(255,255,255,0.05); }
@@ -17,7 +17,7 @@
         .page { padding: 15px; height: calc(100vh - 60px); overflow-y: auto; display: none; }
         .page.active { display: block; }
 
-        /* Kartlar ve Girişler */
+        /* Kartlar */
         .card { background: var(--beyaz); padding: 15px; border-radius: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         textarea, input { width: 100%; padding: 14px; margin: 5px 0; border-radius: 12px; border: 1px solid #e2e8f0; font-size: 16px; font-weight: 600; background: #f8fafc; color: var(--ana); }
         .btn-main { width: 100%; padding: 18px; border-radius: 16px; border: none; font-weight: 800; background: var(--mavi); color: white; font-size: 15px; cursor: pointer; }
@@ -28,34 +28,32 @@
         .mode-btn.active { background: var(--ana); color: white; border-color: var(--ana); }
         .zoom-btn { width: 40px; height: 40px; border-radius: 10px; border: 1px solid #ddd; background: white; font-weight: bold; font-size: 20px; }
 
-        /* Liste Tasarımı */
+        /* LİSTE TASARIMI */
         .liste-oge { background: var(--beyaz); padding: 15px; border-radius: 18px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee; }
         .liste-oge.is-done { background: #dcfce7 !important; border-color: var(--yesil); }
         .btn-sm { padding: 8px 12px; border-radius: 10px; border: none; font-weight: 800; font-size: 12px; cursor: pointer; }
 
-        /* HARİTA PİNLERİ - ANLIK RENK DEĞİŞİMİ */
+        /* YENİ NESİL ŞEFFAF ETİKETLER */
         .pin { 
-            position: absolute; width: 14px; height: 14px; background: #f59e0b; 
-            border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%) scale(calc(1 / var(--zoom, 0.5))); 
-            z-index: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.3); transition: background 0.2s;
+            position: absolute; transform: translate(-50%, -50%) scale(calc(1 / var(--zoom, 0.5))); 
+            z-index: 500; display: flex; align-items: center; justify-content: center;
         }
-        .pin.is-done { background: var(--yesil) !important; box-shadow: 0 0 10px var(--yesil); }
-        .pin.blok-modu { background: var(--gri); }
-        
-        .pin-label { 
-            position: absolute; top: -14px; left: 50%; transform: translateX(-50%) scale(calc(0.8 / var(--zoom, 0.5))); 
-            background: rgba(0,0,0,0.7); color: white; padding: 1px 4px; border-radius: 3px; 
-            font-size: 9px; font-weight: 900; pointer-events: none;
+        .block-label { 
+            background: var(--gri); color: white; padding: 2px 6px; border-radius: 4px; 
+            font-size: 10px; font-weight: 900; white-space: nowrap; pointer-events: auto;
+            border: 1px solid rgba(255,255,255,0.2); transition: all 0.2s;
         }
-        .pin.is-done .pin-label { background: var(--yesil); }
+        .pin.has-wait .block-label { background: var(--turuncu); box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4); border-color: #fbbf24; }
+        .pin.is-done .block-label { background: var(--yesil); box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4); border-color: #4ade80; }
 
-        /* Modal / Pencere */
-        #customerModal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 400px; background: white; border-radius: 24px; z-index: 4000; display: none; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3500; display: none; }
-
+        /* Harita Alanı */
         .viewport { position: relative; width: 100%; height: 100%; overflow: auto; background: #cbd5e1; margin-top: 50px; }
         .canvas { position: relative; display: inline-block; transform-origin: 0 0; }
         #mapImg { display: block; width: 2200px; height: auto; pointer-events: none; }
+
+        /* Modal */
+        #customerModal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 400px; background: white; border-radius: 24px; z-index: 4000; display: none; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3500; display: none; }
 
         svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 400; }
         .zone-poly { fill: rgba(37, 99, 235, 0.1); stroke: var(--mavi); stroke-width: calc(2px / var(--zoom, 0.5)); }
@@ -70,7 +68,7 @@
 <div id="customerModal">
     <div style="font-weight:900; font-size:18px; margin-bottom:15px;" id="modalTitle">BLOK DETAYI</div>
     <div id="modalList"></div>
-    <button class="btn-main" onclick="closeModal()" style="background:var(--gri); margin-top:10px;">PENCEREYİ KAPAT</button>
+    <button class="btn-main" onclick="closeModal()" style="background:var(--gri); margin-top:10px;">KAPAT</button>
 </div>
 
 <div class="tabs">
@@ -86,7 +84,7 @@
         <button class="btn-main" onclick="autoProcess()">GÜZERGAHLARA AYIR</button>
     </div>
     <div id="renderArea"></div>
-    <button id="clearBtn" class="btn-main" style="background:var(--kirmizi); margin-top:20px; display:none;" onclick="resetList()">TÜM MÜŞTERİ LİSTESİNİ SİL</button>
+    <button id="clearBtn" class="btn-main" style="background:var(--kirmizi); margin-top:20px; display:none;" onclick="resetList()">TÜM LİSTEYİ SİL</button>
 </div>
 
 <div id="page-setup" class="page">
@@ -95,11 +93,11 @@
         <input type="file" accept="image/*" onchange="uploadMap(this)">
     </div>
     <div class="card">
-        <h3>💾 VERİ YÖNETİMİ</h3>
+        <h3>💾 YEDEKLEME</h3>
         <button onclick="exportDB()" class="btn-main">YEDEK AL</button>
         <label class="btn-main" style="display:block; text-align:center; margin-top:10px;">YÜKLE<input type="file" onchange="importDB(this)" style="display:none;"></label>
     </div>
-    <button class="btn-main" onclick="resetZones()" style="background:var(--kirmizi); margin-top:10px;">HARİTA & BLOKLARI SIFIRLA</button>
+    <button class="btn-main" onclick="resetZones()" style="background:var(--kirmizi); margin-top:10px;">HAFIZAYI SIFIRLA</button>
 </div>
 
 <div id="page-map" class="page" style="padding:0;">
@@ -127,17 +125,22 @@
 
 <script>
     let idb;
-    const req = indexedDB.open("BurukIşikHiziV72", 1);
+    const req = indexedDB.open("BurukMilimV73", 1);
     req.onupgradeneeded = e => e.target.result.createObjectStore("assets", {keyPath: "id"});
     req.onsuccess = e => { idb = e.target.result; startup(); };
 
-    let db = JSON.parse(localStorage.getItem('buruk_v72_data')) || { zones: [], blocks: {}, items: [] };
+    let db = JSON.parse(localStorage.getItem('buruk_v73_data')) || { zones: [], blocks: {}, items: [] };
     let mod = "view", sc = 0.5, currentPath = [], isAction = false, curX = 0, curY = 0;
 
     function UB(el) { el.value = el.value.toLocaleUpperCase('tr-TR'); }
-    function save() { localStorage.setItem('buruk_v72_data', JSON.stringify(db)); }
+    function save() { localStorage.setItem('buruk_v73_data', JSON.stringify(db)); }
     function startup() { loadMapUI(); renderList(); updateZoomCSS(); }
-    function updateZoomCSS() { document.getElementById('zemin').style.transform = `scale(${sc})`; document.documentElement.style.setProperty('--zoom', sc); }
+    
+    function updateZoomCSS() { 
+        document.getElementById('zemin').style.transform = `scale(${sc})`;
+        document.documentElement.style.setProperty('--zoom', sc); 
+    }
+
     function zoom(v) { sc = Math.min(Math.max(sc + v, 0.1), 3); updateZoomCSS(); drawZones(); }
 
     function setMod(m) {
@@ -148,43 +151,53 @@
         closeInput(); drawZones();
     }
 
-    // --- ANLIK TESLİMAT FONKSİYONU ---
-    function deliverOne(is, bl) {
-        db.items.forEach(i => { if(i.is === is && i.bl === bl) i.st = 'done'; });
-        save();
-        // Harita ve listeyi ANINDA güncelle
-        renderList();
-        drawZones();
+    function getPreciseCoords(e) {
+        const img = document.getElementById('mapImg');
+        const rect = img.getBoundingClientRect();
+        const t = e.touches ? e.touches[0] : e;
+        
+        // HARİTANIN GERÇEK GENİŞLİĞİNE (2200px) GÖRE ORANLAMA
+        const ratio = 2200 / rect.width;
+        const x = (t.clientX - rect.left) * ratio;
+        const y = (t.clientY - rect.top) * ratio;
+        return { x, y };
     }
 
-    // --- LİSTE ÇİZİMİ ---
-    function renderList() {
-        const m = document.getElementById('renderArea'); m.innerHTML = "";
-        if(db.items.length === 0) { document.getElementById('clearBtn').style.display='none'; return; }
-        document.getElementById('clearBtn').style.display='block';
+    function hStart(e) {
+        if(mod === 'view') return;
+        isAction = true;
+        const coords = getPreciseCoords(e);
+        curX = coords.x; curY = coords.y;
 
-        const gr = {};
-        db.items.forEach(t => { if(!gr[t.route]) gr[t.route] = []; gr[t.route].push(t); });
-
-        Object.keys(gr).sort().forEach(g => {
-            let h = `<div class="etap-baslik"><span>${g}</span> <span>${gr[g].length} PKT</span></div>`;
-            gr[g].forEach(t => {
-                const done = t.st === 'done';
-                h += `<div class="liste-oge ${done ? 'is-done' : ''}">
-                    <span><b>${t.is}</b> <small>BLOK: ${t.bl} ${done ? '✓' : ''}</small></span>
-                    <div style="display:flex; gap:5px;">
-                        ${!done ? `<button class="btn-sm" style="background:var(--yesil); color:white;" onclick="deliverOne('${t.is}','${t.bl}')">TESLİM</button>` : ''}
-                        <button class="btn-sm" style="background:var(--kirmizi); color:white;" onclick="delItem('${t.is}','${t.bl}')">SİL</button>
-                    </div>
-                </div>`;
-            });
-            m.innerHTML += h;
-        });
+        if(mod === 'blok') {
+            document.getElementById('blokInput').value = "";
+            document.getElementById('inputPanel').style.display = 'block';
+            setTimeout(() => document.getElementById('blokInput').focus(), 150);
+        } else if (mod === 'draw') currentPath = [{x: curX, y: curY}];
     }
 
-    function delItem(is, bl) {
-        if(confirm("Silinsin mi?")) { db.items = db.items.filter(i => !(i.is === is && i.bl === bl)); save(); renderList(); drawZones(); }
+    function hMove(e) {
+        if(!isAction || mod !== 'draw') return;
+        e.preventDefault();
+        const coords = getPreciseCoords(e);
+        currentPath.push({ x: coords.x, y: coords.y });
+        const svg = document.getElementById('svgLayer');
+        let temp = document.getElementById('temp');
+        if(!temp) { temp = document.createElementNS("http://www.w3.org/2000/svg", "polyline"); temp.id = "temp"; temp.setAttribute("style", `fill:none; stroke:red; stroke-width:${3/sc}px;`); svg.appendChild(temp); }
+        temp.setAttribute("points", currentPath.map(p => p.x+','+p.y).join(' '));
     }
+
+    function hEnd() {
+        if(!isAction || mod !== 'draw') { isAction = false; return; }
+        isAction = false;
+        if(currentPath.length < 3) return;
+        const gNo = prompt("Güzergah Adı:");
+        if(gNo) { let p = [...currentPath]; p.push(p[0]); db.zones.push({ name: gNo.toUpperCase(), points: p }); save(); }
+        document.getElementById('temp')?.remove(); drawZones(); currentPath = [];
+    }
+
+    function saveBlok() { const b = document.getElementById('blokInput').value.trim().toUpperCase(); if(b) { db.blocks[b] = {x: curX, y: curY}; save(); drawZones(); } closeInput(); }
+    function closeInput() { document.getElementById('inputPanel').style.display = 'none'; }
 
     // --- HARİTA ÇİZİMİ ---
     function drawZones() {
@@ -192,7 +205,7 @@
         svg.innerHTML = db.zones.map((z, i) => `<polygon points="${z.points.map(p => p.x+','+p.y).join(' ')}" class="zone-poly" style="fill:hsla(${i*75}, 70%, 55%, 0.12); stroke:hsl(${i*75}, 70%, 55%);"></polygon>`).join("");
         
         const z = document.getElementById('zemin');
-        z.querySelectorAll('.pin, .pin-label').forEach(e=>e.remove());
+        z.querySelectorAll('.pin').forEach(e=>e.remove());
         
         const statusMap = {};
         db.items.forEach(i => {
@@ -207,13 +220,18 @@
             const stats = statusMap[bl] || { wait: 0, done: 0 };
             const p = document.createElement('div');
             
-            // Eğer o bloktaki tüm kargolar bittiyse (wait kalmadıysa ve en az 1 done varsa) yeşil yak
+            const hasWait = stats.wait > 0;
             const fullyDone = stats.wait === 0 && stats.done > 0;
-            p.className = 'pin' + (fullyDone ? ' is-done' : '') + (mod==='blok' ? ' blok-modu' : '');
             
+            p.className = 'pin' + (hasWait ? ' has-wait' : '') + (fullyDone ? ' is-done' : '') + (mod==='blok' ? ' blok-modu' : '');
             p.style.left = b.x + "px"; p.style.top = b.y + "px";
-            p.innerHTML = `<div class="pin-label">${bl}${fullyDone ? ' ✓' : ''}</div>`;
-            p.onclick = e => { e.stopPropagation(); if(mod==='blok'){if(confirm("Sil?")){delete db.blocks[bl]; save(); drawZones();}} else { openModal(bl); }};
+            p.innerHTML = `<div class="block-label">${bl}${fullyDone ? ' ✓' : ''}</div>`;
+            
+            p.onclick = e => { 
+                e.stopPropagation(); 
+                if(mod==='blok'){if(confirm(bl+" Silinsin mi?")){delete db.blocks[bl]; save(); drawZones();}} 
+                else { openModal(bl); }
+            };
             z.appendChild(p);
         });
     }
@@ -226,46 +244,21 @@
         list.forEach(i => {
             c.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:12px; margin-bottom:8px; border-radius:12px;">
                 <b>${i.is}</b>
-                <button class="btn-sm" style="background:var(--yesil); color:white;" onclick="deliverOne('${i.is}','${bl}'); closeModal();">TESLİM ET</button>
+                <button class="btn-sm" style="background:var(--yesil); color:white;" onclick="deliverOne('${i.is}','${bl}')">TESLİM ET</button>
             </div>`;
         });
         document.getElementById('customerModal').style.display='block'; document.getElementById('overlay').style.display='block';
     }
+
+    function deliverOne(is, bl) {
+        db.items.forEach(i => { if(i.is === is && i.bl === bl) i.st = 'done'; });
+        save(); renderList(); drawZones();
+        const remaining = db.items.filter(i => i.bl === bl && i.st === 'wait');
+        if(remaining.length > 0) openModal(bl); else closeModal();
+    }
+
     function closeModal() { document.getElementById('customerModal').style.display='none'; document.getElementById('overlay').style.display='none'; }
 
-    // --- TEMEL FONKSİYONLAR ---
-    function hStart(e) {
-        if(mod === 'view') return;
-        isAction = true;
-        const rect = document.getElementById('mapImg').getBoundingClientRect();
-        const t = e.touches ? e.touches[0] : e;
-        curX = (t.clientX - rect.left) / sc;
-        curY = (t.clientY - rect.top) / sc;
-        if(mod === 'blok') { document.getElementById('blokInput').value = ""; document.getElementById('inputPanel').style.display = 'block'; setTimeout(() => document.getElementById('blokInput').focus(), 150); }
-        else if (mod === 'draw') currentPath = [{x: curX, y: curY}];
-    }
-    function hMove(e) {
-        if(!isAction || mod !== 'draw') return;
-        e.preventDefault();
-        const rect = document.getElementById('mapImg').getBoundingClientRect();
-        const t = e.touches ? e.touches[0] : e;
-        currentPath.push({ x: (t.clientX - rect.left)/sc, y: (t.clientY - rect.top)/sc });
-        const svg = document.getElementById('svgLayer');
-        let temp = document.getElementById('temp');
-        if(!temp) { temp = document.createElementNS("http://www.w3.org/2000/svg", "polyline"); temp.id = "temp"; temp.setAttribute("style", `fill:none; stroke:red; stroke-width:${3/sc}px;`); svg.appendChild(temp); }
-        temp.setAttribute("points", currentPath.map(p => p.x+','+p.y).join(' '));
-    }
-    function hEnd() {
-        if(!isAction || mod !== 'draw') { isAction = false; return; }
-        isAction = false;
-        if(currentPath.length < 3) return;
-        const gNo = prompt("Güzergah Adı:");
-        if(gNo) { let p = [...currentPath]; p.push(p[0]); db.zones.push({ name: gNo.toUpperCase(), points: p }); save(); }
-        document.getElementById('temp')?.remove(); drawZones(); currentPath = [];
-    }
-    function saveBlok() { const b = document.getElementById('blokInput').value.trim().toUpperCase(); if(b) { db.blocks[b] = {x: curX, y: curY}; save(); drawZones(); } closeInput(); }
-    function closeInput() { document.getElementById('inputPanel').style.display = 'none'; }
-    function isInside(p, vs) { let x = p.x, y = p.y, ins = false; for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) { let xi = vs[i].x, yi = vs[i].y, xj = vs[j].x, yj = vs[j].y; if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) ins = !ins; } return ins; }
     function autoProcess() {
         const txt = document.getElementById('seriIn').value.trim().toLocaleUpperCase('tr-TR');
         if(!txt) return;
@@ -282,6 +275,31 @@
         });
         save(); renderList(); drawZones(); document.getElementById('seriIn').value = "";
     }
+
+    function renderList() {
+        const m = document.getElementById('renderArea'); m.innerHTML = "";
+        if(db.items.length === 0) { document.getElementById('clearBtn').style.display='none'; return; }
+        document.getElementById('clearBtn').style.display='block';
+        const gr = {};
+        db.items.forEach(t => { if(!gr[t.route]) gr[t.route] = []; gr[t.route].push(t); });
+        Object.keys(gr).sort().forEach(g => {
+            let h = `<div class="etap-baslik"><span>${g}</span> <span>${gr[g].length} PKT</span></div>`;
+            gr[g].forEach(t => {
+                const done = t.st === 'done';
+                h += `<div class="liste-oge ${done ? 'is-done' : ''}">
+                    <span><b>${t.is}</b> <small>BLOK: ${t.bl} ${done ? '✓' : ''}</small></span>
+                    <div style="display:flex; gap:5px;">
+                        ${!done ? `<button class="btn-sm" style="background:var(--yesil); color:white;" onclick="deliverOne('${t.is}','${t.bl}')">TESLİM</button>` : ''}
+                        <button class="btn-sm" style="background:var(--kirmizi); color:white;" onclick="delItem('${t.is}','${t.bl}')">SİL</button>
+                    </div>
+                </div>`;
+            });
+            m.innerHTML += h;
+        });
+    }
+
+    function delItem(is, bl) { if(confirm("Silinsin mi?")) { db.items = db.items.filter(i => !(i.is === is && i.bl === bl)); save(); renderList(); drawZones(); } }
+    function isInside(p, vs) { let x = p.x, y = p.y, ins = false; for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) { let xi = vs[i].x, yi = vs[i].y, xj = vs[j].x, yj = vs[j].y; if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) ins = !ins; } return ins; }
     function uploadMap(i) { const r = new FileReader(); r.onload = e => { const tx = idb.transaction("assets", "readwrite"); tx.objectStore("assets").put({id: "master", data: e.target.result}); loadMapUI(); }; r.readAsDataURL(i.files[0]); }
     async function loadMapUI() { const tx = idb.transaction("assets", "readonly"); const r = tx.objectStore("assets").get("master"); r.onsuccess = () => { if(r.result) { document.getElementById('mapImg').src = r.result.data; setTimeout(drawZones, 100); } }; }
     function resetZones() { if(confirm("Her şey silinsin mi?")) { db.zones=[]; db.blocks={}; db.items=[]; save(); startup(); } }
